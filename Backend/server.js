@@ -59,10 +59,14 @@ app.post("/api/image", async (req, res) => {
       size: "1024x1024",
     });
 
-    console.log("✅ Image generated:", result.data[0].url);
+    console.log("✅ Image generated:", result?.data);
+
+    const base64 = result.data[0].b64_json;
+
+    const imageUrl = `data:image/png;base64,${base64}`;
 
     res.json({
-      image: result.data[0].url
+      image: imageUrl
     });
 
   } catch (error) {
