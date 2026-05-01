@@ -30,105 +30,126 @@ export default function QuarkAI() {
       return userId;
   };
 
-  const handleSend = async () => {
-    if (input.trim() === '') return;
-    const userMessage = input;
-    if(generatedImages){
-        try{
-          setInput('');
-          resetInput();
-          setIsLoading(true);
-          setChatMessages(prev => [
-            ...prev,
-            { role: 'user', content: userMessage },
-            { role: 'ai', content: 'Generating image...' } 
-          ]);
-          const res = await fetch(`${serverUrl}/api/image`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                prompt: userMessage
-            }),
-          });
-          const data = await res.json();
-          setImage(data.image);
-        }catch(error){
-          console.error("Image generation error:", error);
-        } finally {
-          setGeneratedImages(false);
-          setIsLoading(false);
-        }
-      }
+const handleSend = async () => {
+  if (input.trim() === '') return;
 
-      
+  const userMessage = input;
+  const userId = getUserId();
+  const Deep = isDeepThink ? 'Think Deeply' : 'Normal';
 
-      
-      const Deep = isDeepThink ? 'Think Deeply' : 'Normal';
+  setInput('');
+  resetInput();
+  setIsLoading(true);
 
+  console.log("📤 Sending request:", {
+    userId,
+    message: userMessage,
+    mode: Deep
+  });
+
+  // =========================
+  // 🖼️ IMAGE MODE
+  // =========================
+  if (generatedImages) {
+    try {
       setChatMessages(prev => [
         ...prev,
         { role: 'user', content: userMessage },
-        { role: 'ai', content: '' } // 🔥 نحجز مكان للرد
+        { role: 'ai', content: 'Generating image...' }
       ]);
 
-      console.log("📤 Sending request:");
-      console.log({
-        userId: getUserId(),
-        message: userMessage,
-        mode: Deep
+      const res = await fetch(`${serverUrl}/api/image`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: userMessage
+        }),
       });
 
-      setInput('');
-      resetInput();
-      setIsLoading(true);
+      const data = await res.json();
 
-      try {
-        const res = await fetch(`${serverUrl}/api/chat`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ message: userMessage, system: Deep, userId: getUserId() }),
-        });
+      // 🔥 استبدل رسالة "Generating..." بالصورة
+      setChatMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          role: 'ai-image',
+          image: data.image
+        };
+        return updated;
+      });
 
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-
-        let fullText = '';
-
-        while (true) {
-          const { done, value } = await reader.read();
-
-          if (done) break;
-
-          const chunk = decoder.decode(value);
-          fullText += chunk;
-
-          // 🔥 تحديث آخر رسالة (AI)
-          setChatMessages(prev => {
-            const updated = [...prev];
-            updated[updated.length - 1] = {
-              role: 'ai',
-              content: fullText
-            };
-            return updated;
-          });
-        }
-
-      } catch (error) {
-      console.error('Error:', error);
+    } catch (error) {
+      console.error("Image generation error:", error);
 
       setChatMessages(prev => [
         ...prev,
-        { role: 'ai-error', content: "Something went wrong. Try again." }
+        { role: 'ai-error', content: "Image generation failed." }
       ]);
     } finally {
+      setGeneratedImages(false);
       setIsLoading(false);
     }
 
+    return; // 💣 أهم سطر (يوقف chat)
+  }
+
+  // =========================
+  // 💬 CHAT MODE
+  // =========================
+  setChatMessages(prev => [
+    ...prev,
+    { role: 'user', content: userMessage },
+    { role: 'ai', content: '' }
+  ]);
+
+  try {
+    const res = await fetch(`${serverUrl}/api/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: userMessage,
+        system: Deep,
+        userId
+      }),
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    let fullText = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      fullText += chunk;
+
+      setChatMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          role: 'ai',
+          content: fullText
+        };
+        return updated;
+      });
     }
+
+  } catch (error) {
+    console.error('Chat error:', error);
+
+    setChatMessages(prev => [
+      ...prev,
+      { role: 'ai-error', content: "Something went wrong. Try again." }
+    ]);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
 
 const scrollToBottom = () => {
@@ -356,8 +377,8 @@ useEffect(() => {
                     <TypingEffect mode={isDarkMode} text={message.content} />
                   </div>
 
-                  {generatedImages?.length > 0 && (
-                    <img src={generatedImages[0]} className="rounded-lg mt-4" />
+                  {image && (
+                    <img src={image} className="rounded-lg mt-4" />
                   )}
 
                   {chatMessages.length > 0 && (
