@@ -335,8 +335,8 @@ useEffect(() => {
 
         </div>
 
-         {/* Greeting or help message */}
-        <div className={`fixed top-50 flex flex-row  transition-all duration-300 ease-in-out ${chatMessages.length > 0 ? 'hidden' : 'flex'} items-center justify-center ${isDarkMode ? 'bg-[#1f2023] ' : 'bg-white '}`}>
+        {/* Greeting or help message */}
+        <div className={`fixed top-50 flex flex-row  transition-all duration-300 ease-in-out ${chatMessages.length > 0 ? 'hidden' : 'flex top-1/3'} items-center justify-center ${isDarkMode ? 'bg-[#1f2023] ' : 'bg-white '}`}>
           <span ref={typeRef} className="lg:text-center text-left lg:text-2xl text-xl pr-2 text-shadow-lg font-bold whitespace-pre-line"></span>
         </div>
 
@@ -346,7 +346,7 @@ useEffect(() => {
             
             <div 
               ref={containerRef} 
-              className={`w-full p-4 rounded-xl shadow-lg transition-all duration-300 ${isDarkMode ? 'bg-[#27292d] border border-[#383b40]' : 'bg-white border border-gray-200'} ${chatMessages.length > 0 ? 'bottom-24 pb-6' : 'top-1/2 transform -translate-y-1/2'}`}
+              className={`relative w-full mt-20 p-4 rounded-xl shadow-lg transition-all duration-300 ${isDarkMode ? 'bg-[#27292d] border border-[#383b40]' : 'bg-white border border-gray-200'} ${chatMessages.length > 0 ? 'bottom-24 pb-6' : 'top-1/2 transform -translate-y-1/2'}`}
             >
               <div className="flex flex-row flex-grow items-center justify-between w-full mt-2">
                 <textarea
