@@ -39,6 +39,36 @@ const system = `
 كن طبيعي جداً، مثل ChatGPT
 `;
 
+export const generateImage = async (prompt) => {
+  const response = await client.images.generate({
+    model: "gpt-image-1",
+    prompt: prompt,
+    size: "1024x1024", // أو 512x512
+  });
+
+  return response.data[0].url;
+};
+
+app.post("/api/image", async (req, res) => {
+  const { prompt } = req.body;
+  console.log("📸 Image generation request:", prompt);
+  try {
+    const result = await client.images.generate({
+      model: "gpt-image-1",
+      prompt: prompt,
+      size: "1024x1024",
+    });
+
+    res.json({
+      image: result.data[0].url
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Image generation failed" });
+  }
+});
+
 app.post("/api/chat", async (req, res) => {
   const { message, userId = "default-user" } = req.body;
 
