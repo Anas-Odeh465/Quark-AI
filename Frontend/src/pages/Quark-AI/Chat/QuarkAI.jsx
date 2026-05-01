@@ -321,23 +321,25 @@ useEffect(() => {
                     <TypingEffect mode={isDarkMode} text={message.content} />
                   </div>
 
-                  <div className="flex flex-row justify-start items-center -mt-5 gap-2">
-                    <button onClick={() => {navigator.clipboard.writeText(message.content); alert('✅ Copied');}} className={`flex items-center cursor-pointer p-2 rounded-full text-sm lg:text-base ${isDarkMode ? 'hover:bg-[#27292d] text-white' : 'hover:bg-gray-200 text-black'}`}>
-                      <CopyIcon className="w-4 h-4"/>
-                    </button>
-                    <button onClick={() => {navigator.clipboard.writeText(message.content); alert('✅ Copied');}} className={`flex items-center cursor-pointer p-2 rounded-full text-sm lg:text-base ${isDarkMode ? 'hover:bg-[#27292d] text-white' : 'hover:bg-gray-200 text-black'}`}>
-                      <ShareIcon className="w-4 h-4"/>
-                    </button>
-                    <button onClick={() => {navigator.clipboard.writeText(message.content); alert('✅ Copied');}} className={`flex items-center cursor-pointer p-2 rounded-full text-sm lg:text-base ${isDarkMode ? 'hover:bg-[#27292d] text-white' : 'hover:bg-gray-200 text-black'}`}>
-                      <Repeat1Icon className="w-4 h-4"/>
-                    </button>
-                    <button onClick={() => setIsLiked(!isLiked)} className={`flex items-center cursor-pointer p-2 rounded-full text-sm lg:text-base ${isDarkMode ? 'hover:bg-[#27292d] text-white' : 'hover:bg-gray-200 text-black'}`}>
-                      <ThumbsUpIcon className={`w-4 h-4 ${isLiked ? 'fill-blue-500' : ''}`}/>
-                    </button>
-                    <button onClick={() => {navigator.clipboard.writeText(message.content); alert('✅ Copied');}} className={`flex items-center cursor-pointer p-2 rounded-full text-sm lg:text-base ${isDarkMode ? 'hover:bg-[#27292d] text-white' : 'hover:bg-gray-200 text-black'}`}>
-                      <ThumbsDownIcon className="w-4 h-4"/>
-                    </button>
-                  </div>
+                  {chatMessages.length > 0 && (
+                    <div className="flex flex-row justify-start items-center -mt-5 gap-2">
+                      <button onClick={() => {navigator.clipboard.writeText(message.content); alert('✅ Copied');}} className={`flex items-center cursor-pointer p-2 rounded-full text-sm lg:text-base ${isDarkMode ? 'hover:bg-[#27292d] text-white' : 'hover:bg-gray-200 text-black'}`}>
+                        <CopyIcon className="w-4 h-4"/>
+                      </button>
+                      <button onClick={() => {navigator.clipboard.writeText(message.content); alert('✅ Copied');}} className={`flex items-center cursor-pointer p-2 rounded-full text-sm lg:text-base ${isDarkMode ? 'hover:bg-[#27292d] text-white' : 'hover:bg-gray-200 text-black'}`}>
+                        <ShareIcon className="w-4 h-4"/>
+                      </button>
+                      <button onClick={() => {navigator.clipboard.writeText(message.content); alert('✅ Copied');}} className={`flex items-center cursor-pointer p-2 rounded-full text-sm lg:text-base ${isDarkMode ? 'hover:bg-[#27292d] text-white' : 'hover:bg-gray-200 text-black'}`}>
+                        <Repeat1Icon className="w-4 h-4"/>
+                      </button>
+                      <button onClick={() => setIsLiked(!isLiked)} className={`flex items-center cursor-pointer p-2 rounded-full text-sm lg:text-base ${isDarkMode ? 'hover:bg-[#27292d] text-white' : 'hover:bg-gray-200 text-black'}`}>
+                        <ThumbsUpIcon className={`w-4 h-4 ${isLiked ? 'fill-blue-500' : ''}`}/>
+                      </button>
+                      <button onClick={() => {navigator.clipboard.writeText(message.content); alert('✅ Copied');}} className={`flex items-center cursor-pointer p-2 rounded-full text-sm lg:text-base ${isDarkMode ? 'hover:bg-[#27292d] text-white' : 'hover:bg-gray-200 text-black'}`}>
+                        <ThumbsDownIcon className="w-4 h-4"/>
+                      </button>
+                    </div>
+                  )}
 
                 </div>
               )}
@@ -353,18 +355,20 @@ useEffect(() => {
 
         </div>
 
-        {/* Greeting or help message */}
-        <div className={`fixed top-50 flex flex-row  transition-all duration-300 ease-in-out ${chatMessages.length > 0 ? 'hidden' : 'flex top-1/3'} items-center justify-center ${isDarkMode ? 'bg-[#1f2023] ' : 'bg-white '}`}>
-          <span ref={typeRef} className="lg:text-center text-left lg:text-2xl text-xl pr-2 text-shadow-lg font-bold whitespace-pre-line"></span>
-        </div>
+        
 
         {/* Center screen group items*/}
         <div className={`fixed inset-x-0 h-56 flex justify-center items-center ${isDarkMode ? 'bg-[#1f2023]' : 'bg-white'} transition-all duration-300 ease-in-out ${chatMessages.length > 0 ? '-bottom-19 pb-6' : 'top-70 '}`}>
           <div className="w-full max-w-5xl px-4 ">
+
+            {/* Greeting or help message */}
+        <div className={`z-20 flex flex-row  transition-all duration-300 ease-in-out ${chatMessages.length > 0 ? 'hidden' : 'flex'} items-center justify-start ${isDarkMode ? 'bg-[#1f2023] ' : 'bg-white '}`}>
+          <span ref={typeRef} className="text-left lg:text-2xl text-xl pr-2 text-shadow-lg font-bold whitespace-pre-line"></span>
+        </div>
             
             <div 
               ref={containerRef} 
-              className={`relative w-full mt-20 p-4 rounded-xl shadow-lg transition-all duration-300 ${isDarkMode ? 'bg-[#27292d] border border-[#383b40]' : 'bg-white border border-gray-200'} ${chatMessages.length > 0 ? 'bottom-24 pb-6' : 'top-1/2 transform -translate-y-1/2'}`}
+              className={`relative animated-shadow-box w-full  p-4 rounded-xl shadow-lg transition-all duration-300 ${isDarkMode ? 'bg-[#27292d] border border-[#383b40]' : 'bg-white border border-gray-200'} ${chatMessages.length > 0 ? 'bottom-24 pb-6' : 'top-1/2 transform translate-y-22'}`}
             >
               <div className="flex flex-row flex-grow items-center justify-between w-full mt-2">
                 <textarea

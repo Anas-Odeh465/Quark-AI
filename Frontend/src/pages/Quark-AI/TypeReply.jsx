@@ -24,11 +24,12 @@ const StreamingText = ({ text = "", mode }) => {
       <ReactMarkdown
         components={{
 
-          // 🔥 CODE BLOCK
+          // 🔥 CODE BLOCK (UPDATED)
           code({ inline, className, children }) {
             const [copied, setCopied] = useState(false);
             const codeString = String(children).replace(/\n$/, "");
             const match = /language-(\w+)/.exec(className || "");
+            const language = match ? match[1] : "code";
 
             const handleCopy = () => {
               navigator.clipboard.writeText(codeString);
@@ -38,29 +39,48 @@ const StreamingText = ({ text = "", mode }) => {
 
             if (!inline && match) {
               return (
-                <div className="relative group my-4">
+                <div className="my-4 rounded-lg overflow-hidden">
 
-                  <button
-                    onClick={handleCopy}
+                  {/* 🔥 HEADER */}
+                  <div
                     className={`
-                      absolute top-2 right-2 text-xs px-2 py-1 rounded
-                      transition-all duration-300
-                      opacity-0 group-hover:opacity-100
+                      flex justify-between items-center px-4 py-2 text-xs font-medium
                       ${mode
-                        ? "bg-gray-700 hover:bg-gray-600 text-white"
-                        : "bg-gray-200 hover:bg-gray-300 text-black"}
+                        ? "bg-[#2b2b2b] text-gray-300"
+                        : "bg-gray-200 text-gray-700"}
                     `}
                   >
-                    {copied ? "✔ Copied" : "Copy"}
-                  </button>
+                    <span className="opacity-80">{language}</span>
 
-                  <SyntaxHighlighter
-                    style={oneDark}
-                    language={match[1]}
-                    PreTag="div"
-                  >
-                    {codeString}
-                  </SyntaxHighlighter>
+                    <button
+                      onClick={handleCopy}
+                      className={`
+                        px-2 py-1 rounded transition-all duration-200
+                        ${mode
+                          ? "hover:bg-gray-600"
+                          : "hover:bg-gray-300"}
+                      `}
+                    >
+                      {copied ? "✔ Copied" : "Copy"}
+                    </button>
+                  </div>
+
+                  {/* 🔥 CODE BODY */}
+                  <div className="relative">
+                    <SyntaxHighlighter
+                      style={oneDark}
+                      language={language}
+                      PreTag="div"
+                      customStyle={{
+                        margin: 0,
+                        borderRadius: 0,
+                        paddingTop: "12px"
+                      }}
+                    >
+                      {codeString}
+                    </SyntaxHighlighter>
+                  </div>
+
                 </div>
               );
             }
@@ -77,14 +97,11 @@ const StreamingText = ({ text = "", mode }) => {
           h1: (props) => <h1 className="text-2xl font-bold mb-3" {...props} />,
           h2: (props) => <h2 className="text-xl font-semibold mb-2" {...props} />,
 
-          // 🔥 LISTS (RTL FIX)
+          // 🔥 LISTS
           ol: (props) => (
             <ol
               {...props}
-              style={{
-                direction,
-                listStylePosition: "inside"
-              }}
+              style={{ direction, listStylePosition: "inside" }}
               className="list-decimal mb-3"
             />
           ),
@@ -92,10 +109,7 @@ const StreamingText = ({ text = "", mode }) => {
           ul: (props) => (
             <ul
               {...props}
-              style={{
-                direction,
-                listStylePosition: "inside"
-              }}
+              style={{ direction, listStylePosition: "inside" }}
               className="list-disc mb-3"
             />
           ),
@@ -134,7 +148,7 @@ const StreamingText = ({ text = "", mode }) => {
             <img className="rounded-lg my-4 max-w-full" {...props} />
           ),
 
-          // 🔥 TABLES (🔥 أهم إضافة)
+          // 🔥 TABLES
           table: (props) => (
             <div className="overflow-x-auto my-4">
               <table

@@ -42,10 +42,17 @@ const system = `
 app.post("/api/chat", async (req, res) => {
   const { message, userId = "default-user" } = req.body;
 
+  let model = "gpt-4o-mini";
+
+  if (message.length > 200) {
+    model = "gpt-4.1";
+  }
+
     console.log("\n==============================");
     console.log("📥 New Request");
     console.log("👤 User:", userId);
     console.log("💬 Message:", message);
+    console.log("🤖 Model:", model);
 
   try {
     // 🧠 إنشاء ذاكرة إذا مش موجودة
@@ -63,7 +70,7 @@ app.post("/api/chat", async (req, res) => {
     res.setHeader("Transfer-Encoding", "chunked");
 
     const stream = await client.chat.completions.create({
-      model: "gpt-4.1",
+      model: model,
       messages: [
         { role: "system", content: system },
         ...conversations[userId] // 🔥 كل الذاكرة

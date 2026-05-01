@@ -77,3 +77,26 @@
     60%{background-position:0%  50%, 50% 100%,100%   0%}
     80%{background-position:0%  50%, 50%  50%,100% 100%}
 }
+
+
+.animated-shadow-box {
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.10), 0 0 0 8px rgba(0,0,0,0.04);
+  animation: animatedShadow 2.2s ease-in-out infinite alternate;
+}
+@keyframes animatedShadow {
+  0% {
+    box-shadow:
+      0 8px 32px 0 rgba(0,0,0,0.10),
+      0 0 0 8px rgba(0,0,0,0.04);
+  }
+  50% {
+    box-shadow: 
+      0 14px 40px 0 rgba(0,0,0,0.14),
+      0 0 0 12px rgba(0,0,0,0.06);
+  }
+  100% {
+    box-shadow:
+      0 8px 32px 0 rgba(0,0,0,0.10),
+      0 0 0 8px rgba(0,0,0,0.04);
+  }
+}
