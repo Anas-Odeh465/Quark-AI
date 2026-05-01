@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+::selection {
+    background-color: #000000;
+    color: #fff;
+}
+
+.code-selection::selection {
+    background-color: blue;
+    color: white;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+
+.Logo-font{
+    font-family:'Elmessiri', 'sans-serif';
+}
+
+.Header-items-font{
+    font-family: 'Cairo', 'sans-serif';
+}
+
+.typed-shadow {
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink {
+  50% { border-color: transparent }
+}
+
+.typewriter {
+  white-space: wrap-line;
+  animation: typing 0.5s steps(50, end);
+}
+
+/* HTML: <div class="loader"></div> */
+.loader-dark {
+  width: 60px;
+  aspect-ratio: 2;
+  --_g: no-repeat radial-gradient(circle closest-side,#000 90%,#0000);
+  background: 
+    var(--_g) 0%   50%,
+    var(--_g) 50%  50%,
+    var(--_g) 100% 50%;
+  background-size: calc(100%/3) 50%;
+  animation: l3 1s infinite linear;
+}
+@keyframes l3 {
+    20%{background-position:0%   0%, 50%  50%,100%  50%}
+    40%{background-position:0% 100%, 50%   0%,100%  50%}
+    60%{background-position:0%  50%, 50% 100%,100%   0%}
+    80%{background-position:0%  50%, 50%  50%,100% 100%}
+}
+
+.loader-light {
+  width: 60px;
+  aspect-ratio: 2;
+  --_g: no-repeat radial-gradient(circle closest-side,#fff 90%,#0000);
+  background: 
+    var(--_g) 0%   50%,
+    var(--_g) 50%  50%,
+    var(--_g) 100% 50%;
+  background-size: calc(100%/3) 50%;
+  animation: l3 1s infinite linear;
+}
+@keyframes l3 {
+    20%{background-position:0%   0%, 50%  50%,100%  50%}
+    40%{background-position:0% 100%, 50%   0%,100%  50%}
+    60%{background-position:0%  50%, 50% 100%,100%   0%}
+    80%{background-position:0%  50%, 50%  50%,100% 100%}
+}

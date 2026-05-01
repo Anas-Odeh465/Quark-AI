@@ -1,0 +1,33 @@
+const MAX_RETRIES = 10;
+    let attempt = 0;
+
+    while (attempt < MAX_RETRIES) {
+        for(const model of models){
+            try{
+                console.log(`Attempt ${attempt + 1} - Trying: ${model.name}`);
+                const reply = await withTimeout(model.handler(message), 5000);
+                console.log(`✅ Model ${model.name} succeeded.`);
+
+                return res.json({
+                    reply,
+                    model: model.name,
+                    attempts: attempt + 1,
+                });
+            } catch (error){
+                console.error(`Model ${model.name} failed:`, error.message);
+                if (error.message.includes("429")) {
+                   console.log("⏳ Gemini rate limited... waiting 10s");
+                   await ColdDownModel(10000);
+                }
+                else if (error.message.includes("Timeout")) {
+                   console.log("⚡ Retrying quickly...");
+                continue;
+                }
+                else {
+                   await ColdDownModel(2000);
+                }
+            }
+        }
+        attempt++;
+        console.log(`🔁 Retrying... Round ${attempt + 1}`);
+    }
