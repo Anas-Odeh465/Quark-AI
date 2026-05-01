@@ -16,6 +16,7 @@ export default function QuarkAI() {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
+  const [generatedImages, setGeneratedImages] = useState(false);
 
   const getUserId = () => {
       let userId = localStorage.getItem("userId");
@@ -29,72 +30,91 @@ export default function QuarkAI() {
   };
 
   const handleSend = async () => {
-  if (input.trim() === '') return;
-
-  const userMessage = input;
-  const Deep = isDeepThink ? 'Think Deeply' : 'Normal';
-
-  setChatMessages(prev => [
-    ...prev,
-    { role: 'user', content: userMessage },
-    { role: 'ai', content: '' } // 🔥 نحجز مكان للرد
-  ]);
-
-  console.log("📤 Sending request:");
-  console.log({
-    userId: getUserId(),
-    message: userMessage,
-    mode: Deep
-  });
-
-  setInput('');
-  resetInput();
-  setIsLoading(true);
-
-  try {
-    const res = await fetch(`${serverUrl}/api/chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ message: userMessage, system: Deep, userId: getUserId() }),
-    });
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-
-    let fullText = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-
-      if (done) break;
-
-      const chunk = decoder.decode(value);
-      fullText += chunk;
-
-      // 🔥 تحديث آخر رسالة (AI)
-      setChatMessages(prev => {
-        const updated = [...prev];
-        updated[updated.length - 1] = {
-          role: 'ai',
-          content: fullText
-        };
-        return updated;
+    if (input.trim() === '') return;
+    const userMessage = input;
+    if(generatedImages){
+        const res = await fetch(`${serverUrl}/api/image`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: userMessage
+        }),
       });
+      const data = await res.json();
+
+          setGeneratedImages(data.image);
+      }
+
+      
+
+      
+      const Deep = isDeepThink ? 'Think Deeply' : 'Normal';
+
+      setChatMessages(prev => [
+        ...prev,
+        { role: 'user', content: userMessage },
+        { role: 'ai', content: '' } // 🔥 نحجز مكان للرد
+      ]);
+
+      console.log("📤 Sending request:");
+      console.log({
+        userId: getUserId(),
+        message: userMessage,
+        mode: Deep
+      });
+
+      setInput('');
+      resetInput();
+      setIsLoading(true);
+
+      try {
+        const res = await fetch(`${serverUrl}/api/chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: userMessage, system: Deep, userId: getUserId() }),
+        });
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+
+        let fullText = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          fullText += chunk;
+
+          // 🔥 تحديث آخر رسالة (AI)
+          setChatMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              role: 'ai',
+              content: fullText
+            };
+            return updated;
+          });
+        }
+
+      } catch (error) {
+      console.error('Error:', error);
+
+      setChatMessages(prev => [
+        ...prev,
+        { role: 'ai-error', content: "Something went wrong. Try again." }
+      ]);
+    } finally {
+      setIsLoading(false);
     }
 
-  } catch (error) {
-    console.error('Error:', error);
+    }
 
-    setChatMessages(prev => [
-      ...prev,
-      { role: 'ai-error', content: "Something went wrong. Try again." }
-    ]);
-  } finally {
-    setIsLoading(false);
-  }
-};
 
 const scrollToBottom = () => {
   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -321,6 +341,10 @@ useEffect(() => {
                     <TypingEffect mode={isDarkMode} text={message.content} />
                   </div>
 
+                  {generatedImages.length > 0 && (
+                    <img src={generatedImages[0]} className="rounded-lg mt-4" />
+                  )}
+
                   {chatMessages.length > 0 && (
                     <div className="flex flex-row justify-start items-center -mt-5 gap-2">
                       <button onClick={() => {navigator.clipboard.writeText(message.content); alert('✅ Copied');}} className={`flex items-center cursor-pointer p-2 rounded-full text-sm lg:text-base ${isDarkMode ? 'hover:bg-[#27292d] text-white' : 'hover:bg-gray-200 text-black'}`}>
@@ -409,10 +433,10 @@ useEffect(() => {
                   <span className="text-sm">Customer</span>
                   <span className="hidden lg:flex text-sm">management</span>
                 </div>
-                <div className={`hidden xl:flex lg:flex flex-row items-center justify-center p-1 px-2 rounded-lg gap-2 cursor-pointer transition-all duration-300 ease-in-out ${isDarkMode ? 'bg-[#27292d]  hover:bg-[#1f2023]' : 'bg-white hover:bg-gray-100'}`}>
-                  <FileImage className={`w-4 h-4 cursor-pointer ${isDarkMode ? 'text-white' : 'text-black'}`}/>
+                <div onClick={() => setGeneratedImages(!generatedImages)} className={`hidden xl:flex lg:flex flex-row items-center justify-center ${generatedImages ? 'bg-green-400/30 text-green-600 border-1 border-green-700 ':  `${isDarkMode ? 'bg-[#27292d]  hover:bg-[#1f2023]' : ' hover:bg-gray-100'}`} p-1 px-2 rounded-lg gap-2 cursor-pointer transition-all duration-300 ease-in-out `}>
+                  <FileImage className={`w-4 h-4 cursor-pointer ${generatedImages ? ' text-green-700': ''}`}/>
                   <span className="text-sm">Generate</span>
-                  <span className="hidden lg:flex text-sm">ads</span>
+                  <span className="hidden lg:flex text-sm">image</span>
                 </div>
                 <div className={`hidden xl:flex lg:flex flex-row items-center justify-center p-1 px-2 rounded-lg gap-2 cursor-pointer transition-all duration-300 ease-in-out ${isDarkMode ? 'bg-[#27292d]  hover:bg-[#1f2023]' : 'bg-white hover:bg-gray-100'}`}>
                   <UploadIcon className={`w-4 h-4 cursor-pointer ${isDarkMode ? 'text-white' : 'text-black'}`}/>
