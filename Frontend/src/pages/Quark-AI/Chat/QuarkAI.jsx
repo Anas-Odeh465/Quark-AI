@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import TypingEffect from '../TypeReply';
 import { CopyIcon, PlusIcon ,PlusCircleIcon, ArrowRight, MemoryStickIcon, BotIcon, HelpCircleIcon, ProjectorIcon, EarthIcon, Wind, PieChartIcon, SaveAllIcon, User2Icon, YoutubeIcon, ThumbsUpIcon, ThumbsDownIcon, ShareIcon, Repeat1Icon,
-        HistoryIcon, BotMessageSquareIcon, SettingsIcon, MoonIcon, MenuIcon ,SunIcon, NewspaperIcon, BlocksIcon, UploadIcon, FileImage, FacebookIcon, InstagramIcon, TwitterIcon, CircleHelpIcon} from "lucide-react";
+        HistoryIcon, BotMessageSquareIcon, SettingsIcon, MoonIcon, MenuIcon ,SunIcon, NewspaperIcon, BlocksIcon, UploadIcon, FileImage, FacebookIcon, InstagramIcon, TwitterIcon, CircleHelpIcon, Download} from "lucide-react";
 import Typed from "typed.js";
 import { NormalType } from "../TypeError";
 import serverUrl from "../../../ServerAPI";
@@ -406,18 +406,18 @@ useEffect(() => {
 
                   {/* 📥 DOWNLOAD */}
                   <button
-                    onClick={() => handleDownload(msg.image)}
+                    onClick={() => handleDownload(message.image)}
                     className="bg-black/60 text-white text-xs px-2 py-1 rounded hover:bg-black"
                   >
-                    ⬇
+                    <Download className="text-white h-12 w-12"/>
                   </button>
 
                   {/* 📋 COPY */}
                   <button
-                    onClick={() => handleCopy(msg.image)}
+                    onClick={() => handleCopy(message.image)}
                     className="bg-black/60 text-white text-xs px-2 py-1 rounded hover:bg-black"
                   >
-                    📋
+                    <CopyIcon className="text-white h-12 w-12"/>
                   </button>
 
                 </div>
