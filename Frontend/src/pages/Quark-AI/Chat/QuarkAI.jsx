@@ -17,6 +17,7 @@ export default function QuarkAI() {
   const messagesEndRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [generatedImages, setGeneratedImages] = useState(false);
+  const [image, setImage] = useState(null);
 
   const getUserId = () => {
       let userId = localStorage.getItem("userId");
@@ -33,18 +34,32 @@ export default function QuarkAI() {
     if (input.trim() === '') return;
     const userMessage = input;
     if(generatedImages){
-        const res = await fetch(`${serverUrl}/api/image`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            prompt: userMessage
-        }),
-      });
-      const data = await res.json();
-
-          setGeneratedImages(data.image);
+        try{
+          setInput('');
+          resetInput();
+          setIsLoading(true);
+          setChatMessages(prev => [
+            ...prev,
+            { role: 'user', content: userMessage },
+            { role: 'ai', content: 'Generating image...' } 
+          ]);
+          const res = await fetch(`${serverUrl}/api/image`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                prompt: userMessage
+            }),
+          });
+          const data = await res.json();
+          setImage(data.image);
+        }catch(error){
+          console.error("Image generation error:", error);
+        } finally {
+          setGeneratedImages(false);
+          setIsLoading(false);
+        }
       }
 
       
@@ -341,7 +356,7 @@ useEffect(() => {
                     <TypingEffect mode={isDarkMode} text={message.content} />
                   </div>
 
-                  {generatedImages.length > 0 && (
+                  {generatedImages?.length > 0 && (
                     <img src={generatedImages[0]} className="rounded-lg mt-4" />
                   )}
 
