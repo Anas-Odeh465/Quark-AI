@@ -18,6 +18,29 @@ export default function QuarkAI() {
   const [chatMessages, setChatMessages] = useState([]);
   const [generatedImages, setGeneratedImages] = useState(false);
 
+  const handleDownload = (imageUrl) => {
+  const link = document.createElement("a");
+  link.href = imageUrl;
+  link.download = "quark-ai-image.png";
+  link.click();
+};
+
+const handleCopy = async (imageUrl) => {
+  try {
+    const res = await fetch(imageUrl);
+    const blob = await res.blob();
+
+    await navigator.clipboard.write([
+      new ClipboardItem({ [blob.type]: blob })
+    ]);
+
+    alert("✅ Image copied!");
+  } catch (err) {
+    console.error("Copy failed:", err);
+    alert("❌ Failed to copy");
+  }
+};
+
   const getUserId = () => {
       let userId = localStorage.getItem("userId");
 
@@ -370,10 +393,35 @@ useEffect(() => {
               ) : message.role === 'ai-error' ? (
                  <NormalType mode={isDarkMode} message={message.content} />
               ) : message.role === 'ai-image' ? (
-                  <img
-                    src={message.image}
-                    className="rounded-lg mt-2 max-w-full"
-                  />
+                  <div className="relative group w-fit">
+
+                {/* 🖼️ IMAGE */}
+                <img
+                  src={message.image}
+                  className="rounded-lg mt-2 max-w-full"
+                />
+
+                {/* 🔥 BUTTONS */}
+                <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+
+                  {/* 📥 DOWNLOAD */}
+                  <button
+                    onClick={() => handleDownload(msg.image)}
+                    className="bg-black/60 text-white text-xs px-2 py-1 rounded hover:bg-black"
+                  >
+                    ⬇
+                  </button>
+
+                  {/* 📋 COPY */}
+                  <button
+                    onClick={() => handleCopy(msg.image)}
+                    className="bg-black/60 text-white text-xs px-2 py-1 rounded hover:bg-black"
+                  >
+                    📋
+                  </button>
+
+                </div>
+              </div>
                 ) : (
                 
                 <div className="flex flex-col w-auto space-y-2 py-2">
