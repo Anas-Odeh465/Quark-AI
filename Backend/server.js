@@ -6,7 +6,11 @@ import OpenAI from "openai";
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors(
+  {
+    origin: ['https://quark-ai-sage.vercel.app', 'http://localhost:5174'], 
+  },
+));
 app.use(express.json());
 
 const client = new OpenAI({

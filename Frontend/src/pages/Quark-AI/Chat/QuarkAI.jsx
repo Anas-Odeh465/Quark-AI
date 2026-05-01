@@ -4,7 +4,7 @@ import { CopyIcon, PlusIcon ,PlusCircleIcon, ArrowRight, MemoryStickIcon, BotIco
         HistoryIcon, BotMessageSquareIcon, SettingsIcon, MoonIcon, MenuIcon ,SunIcon, NewspaperIcon, BlocksIcon, UploadIcon, FileImage, FacebookIcon, InstagramIcon, TwitterIcon, CircleHelpIcon} from "lucide-react";
 import Typed from "typed.js";
 import { NormalType } from "../TypeError";
-import axios from "axios";
+import serverUrl from "../../../ServerAPI";
 
 export default function QuarkAI() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,7 +34,7 @@ export default function QuarkAI() {
   setIsLoading(true);
 
   try {
-    const res = await fetch('http://localhost:5000/api/chat', {
+    const res = await fetch(`${serverUrl}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
