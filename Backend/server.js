@@ -59,6 +59,8 @@ app.post("/api/image", async (req, res) => {
       size: "1024x1024",
     });
 
+    console.log("✅ Image generated:", result.data[0].url);
+
     res.json({
       image: result.data[0].url
     });
