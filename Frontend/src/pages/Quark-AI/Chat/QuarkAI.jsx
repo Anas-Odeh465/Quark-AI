@@ -17,6 +17,17 @@ export default function QuarkAI() {
   const messagesEndRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
 
+  const getUserId = () => {
+      let userId = localStorage.getItem("userId");
+
+      if (!userId) {
+        userId = "user_" + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem("userId", userId);
+      }
+
+      return userId;
+  };
+
   const handleSend = async () => {
   if (input.trim() === '') return;
 
@@ -29,6 +40,13 @@ export default function QuarkAI() {
     { role: 'ai', content: '' } // 🔥 نحجز مكان للرد
   ]);
 
+  console.log("📤 Sending request:");
+  console.log({
+    userId: getUserId(),
+    message: userMessage,
+    mode: Deep
+  });
+
   setInput('');
   resetInput();
   setIsLoading(true);
@@ -39,7 +57,7 @@ export default function QuarkAI() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ message: userMessage, system: Deep, userId: 'user_123' }),
+      body: JSON.stringify({ message: userMessage, system: Deep, userId: getUserId() }),
     });
 
     const reader = res.body.getReader();

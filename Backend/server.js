@@ -42,6 +42,11 @@ const system = `
 app.post("/api/chat", async (req, res) => {
   const { message, userId = "default-user" } = req.body;
 
+    console.log("\n==============================");
+    console.log("📥 New Request");
+    console.log("👤 User:", userId);
+    console.log("💬 Message:", message);
+
   try {
     // 🧠 إنشاء ذاكرة إذا مش موجودة
     if (!conversations[userId]) {
