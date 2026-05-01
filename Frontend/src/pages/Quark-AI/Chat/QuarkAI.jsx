@@ -17,7 +17,6 @@ export default function QuarkAI() {
   const messagesEndRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [generatedImages, setGeneratedImages] = useState(false);
-  const [image, setImage] = useState(null);
 
   const getUserId = () => {
       let userId = localStorage.getItem("userId");
@@ -370,16 +369,18 @@ useEffect(() => {
                 <span className="flex whitespace-break-spaces">{message.content}</span>
               ) : message.role === 'ai-error' ? (
                  <NormalType mode={isDarkMode} message={message.content} />
-              ) : (
+              ) : message.role === 'ai-image' ? (
+                  <img
+                    src={message.image}
+                    className="rounded-lg mt-2 max-w-full"
+                  />
+                ) : (
+                
                 <div className="flex flex-col w-auto space-y-2 py-2">
 
                   <div ref={messagesEndRef} className="min-h-[40px] sm:whitespace-pre-line text-sm lg:text-base">
                     <TypingEffect mode={isDarkMode} text={message.content} />
                   </div>
-
-                  {image && (
-                    <img src={image} className="rounded-lg mt-4" />
-                  )}
 
                   {chatMessages.length > 0 && (
                     <div className="flex flex-row justify-start items-center -mt-5 gap-2">
