@@ -515,6 +515,8 @@ useEffect(() => {
                   <BotIcon className={`w-4 h-4 cursor-pointer ${isDarkMode ? 'text-white' : 'text-black'}`}/>
                   <select name="model-selector" id="model-selector" value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} className={`rounded-xl ${isDarkMode ? "bg-black" : "bg-white text-black"}`}>
                     <option value="gpt-4o-mini">GPT-4o-mini</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-4.1-mini">GPT-4.1-mini</option>
                     <option value="gpt-4.1">GPT-4.1</option>
                   </select>
                 </div>
