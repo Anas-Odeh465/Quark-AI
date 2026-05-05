@@ -76,13 +76,11 @@ app.post("/api/image", async (req, res) => {
 });
 
 app.post("/api/chat", async (req, res) => {
-  const { message, userId = "default-user" } = req.body;
+  const { message, userId = "default-user", model } = req.body;
 
-  let model = "gpt-4o-mini";
-
-  if (message.length > 200) {
-    model = "gpt-4.1";
-  }
+  // if (message.length > 200) {
+  //   model = "gpt-4.1";
+  // }
 
     console.log("\n==============================");
     console.log("📥 New Request");
