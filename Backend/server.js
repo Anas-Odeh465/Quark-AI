@@ -78,64 +78,65 @@ app.post("/api/image", async (req, res) => {
 app.post("/api/chat", async (req, res) => {
   const { message, userId = "default-user", model } = req.body;
 
-  // if (message.length > 200) {
-  //   model = "gpt-4.1";
-  // }
-
-    console.log("\n==============================");
-    console.log("📥 New Request");
-    console.log("👤 User:", userId);
-    console.log("💬 Message:", message);
-    console.log("🤖 Model:", model);
+  console.log("\n==============================");
+  console.log("📥 New Request");
+  console.log("👤 User:", userId);
+  console.log("💬 Message:", message);
+  console.log("🤖 Model:", model);
 
   try {
-    // 🧠 إنشاء ذاكرة إذا مش موجودة
     if (!conversations[userId]) {
       conversations[userId] = [];
     }
 
-    // ➕ إضافة رسالة المستخدم
     conversations[userId].push({
       role: "user",
       content: message
     });
 
-    res.setHeader("Content-Type", "text/plain");
-    res.setHeader("Transfer-Encoding", "chunked");
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    res.flushHeaders?.();
 
     const stream = await client.chat.completions.create({
-      model: model,
+      model,
       messages: [
         { role: "system", content: system },
-        ...conversations[userId] // 🔥 كل الذاكرة
+        ...conversations[userId]
       ],
       stream: true,
     });
 
     let fullReply = "";
 
-    // 🔥 streaming + تجميع الرد
     for await (const chunk of stream) {
       const content = chunk.choices?.[0]?.delta?.content || "";
 
+      if (!content) continue;
+
       fullReply += content;
-      res.write(content);
+
+      res.write(`data: ${JSON.stringify(content)}\n\n`);
     }
 
-    // ➕ حفظ رد AI
     conversations[userId].push({
       role: "assistant",
       content: fullReply
     });
 
-    // 💣 limit (آخر 20 رسالة فقط)
     conversations[userId] = conversations[userId].slice(-20);
+
+    res.write(`data: [DONE]\n\n`);
 
     res.end();
 
   } catch (error) {
     console.error(error);
-    res.status(500).end("Error");
+
+    res.write(`data: ERROR\n\n`);
+    res.end();
   }
 });
 

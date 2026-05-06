@@ -54,6 +54,7 @@ const handleCopy = async (imageUrl) => {
   };
 
 const handleSend = async () => {
+
   if (input.trim() === '') return;
 
   const userMessage = input;
@@ -75,7 +76,9 @@ const handleSend = async () => {
   // 🖼️ IMAGE MODE
   // =========================
   if (generatedImages) {
+
     try {
+
       setChatMessages(prev => [
         ...prev,
         { role: 'user', content: userMessage },
@@ -94,29 +97,38 @@ const handleSend = async () => {
 
       const data = await res.json();
 
-      // 🔥 استبدل رسالة "Generating..." بالصورة
       setChatMessages(prev => {
+
         const updated = [...prev];
+
         updated[updated.length - 1] = {
           role: 'ai-image',
           image: data.image
         };
+
         return updated;
       });
 
     } catch (error) {
+
       console.error("Image generation error:", error);
 
       setChatMessages(prev => [
         ...prev,
-        { role: 'ai-error', content: "Image generation failed." }
+        {
+          role: 'ai-error',
+          content: "Image generation failed."
+        }
       ]);
+
     } finally {
+
       setGeneratedImages(false);
       setIsLoading(false);
+
     }
 
-    return; // 💣 أهم سطر (يوقف chat)
+    return;
   }
 
   // =========================
@@ -129,11 +141,13 @@ const handleSend = async () => {
   ]);
 
   try {
+
     const res = await fetch(`${serverUrl}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+
       body: JSON.stringify({
         message: userMessage,
         system: Deep,
@@ -142,37 +156,88 @@ const handleSend = async () => {
       }),
     });
 
+    // 🔥 IMPORTANT
+    if (!res.body) {
+      throw new Error("No response body");
+    }
+
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
 
     let fullText = '';
 
     while (true) {
+
       const { done, value } = await reader.read();
+
       if (done) break;
 
-      const chunk = decoder.decode(value, { stream: true });
-      fullText += chunk;
-
-      setChatMessages(prev => {
-        const updated = [...prev];
-        updated[updated.length - 1] = {
-          role: 'ai',
-          content: fullText
-        };
-        return updated;
+      // 🔥 decode stream
+      const chunk = decoder.decode(value, {
+        stream: true
       });
+
+      // 🔥 split SSE lines
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+
+        // 🔥 ignore invalid lines
+        if (!line.startsWith('data: ')) continue;
+
+        const data = line.replace('data: ', '').trim();
+
+        // 🔥 stream end
+        if (data === '[DONE]') {
+          console.log("✅ Stream finished");
+          break;
+        }
+
+        try {
+
+          // 🔥 parse content
+          const parsed = JSON.parse(data);
+
+          // 🔥 append text
+          fullText += parsed;
+
+          // 🔥 live update
+          setChatMessages(prev => {
+
+            const updated = [...prev];
+
+            updated[updated.length - 1] = {
+              role: 'ai',
+              content: fullText
+            };
+
+            return updated;
+          });
+
+        } catch (err) {
+
+          console.error("❌ Parse error:", err);
+
+        }
+      }
     }
 
   } catch (error) {
-    console.error('Chat error:', error);
+
+    console.error('❌ Chat error:', error);
 
     setChatMessages(prev => [
       ...prev,
-      { role: 'ai-error', content: "Something went wrong. Try again." }
+      {
+        role: 'ai-error',
+        content: "Something went wrong. Try again."
+      }
     ]);
+
   } finally {
+
     setIsLoading(false);
+
   }
 };
 
