@@ -18,6 +18,7 @@ export default function QuarkAI() {
   const [chatMessages, setChatMessages] = useState([]);
   const [generatedImages, setGeneratedImages] = useState(false);
   const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
+  const [disableReply, setDisableReply] = useState(false);
 
   const handleDownload = (imageUrl) => {
   const link = document.createElement("a");
@@ -64,6 +65,7 @@ const handleSend = async () => {
   setInput('');
   resetInput();
   setIsLoading(true);
+  setDisableReply(true);
 
   console.log("📤 Sending request:", {
     userId,
@@ -73,7 +75,7 @@ const handleSend = async () => {
   });
 
   // =========================
-  // 🖼️ IMAGE MODE
+  //  IMAGE MODE
   // =========================
   if (generatedImages) {
 
@@ -132,7 +134,7 @@ const handleSend = async () => {
   }
 
   // =========================
-  // 💬 CHAT MODE
+  //  CHAT MODE
   // =========================
   setChatMessages(prev => [
     ...prev,
@@ -156,7 +158,7 @@ const handleSend = async () => {
       }),
     });
 
-    // 🔥 IMPORTANT
+    // IMPORTANT
     if (!res.body) {
       throw new Error("No response body");
     }
@@ -172,36 +174,38 @@ const handleSend = async () => {
 
       if (done) break;
 
-      // 🔥 decode stream
+      // decode stream
       const chunk = decoder.decode(value, {
         stream: true
       });
 
-      // 🔥 split SSE lines
+      // split SSE lines
       const lines = chunk.split('\n');
 
       for (const line of lines) {
 
-        // 🔥 ignore invalid lines
+        // ignore invalid lines
         if (!line.startsWith('data: ')) continue;
 
         const data = line.replace('data: ', '').trim();
 
-        // 🔥 stream end
+        // stream end
         if (data === '[DONE]') {
           console.log("✅ Stream finished");
+          setDisableReply(false);
+          scrollToBottom();
           break;
         }
 
         try {
 
-          // 🔥 parse content
+          // parse content
           const parsed = JSON.parse(data);
 
-          // 🔥 append text
+          // append text
           fullText += parsed;
 
-          // 🔥 live update
+          // live update
           setChatMessages(prev => {
 
             const updated = [...prev];
@@ -243,12 +247,14 @@ const handleSend = async () => {
 
 
 const scrollToBottom = () => {
-  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  if (!messagesEndRef.current) return;
+
+  messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
 };
 
 useEffect(() => {
   scrollToBottom();
-}, [chatMessages]);
+}, [chatMessages, isLoading]);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey && input.trim() !== '') {
@@ -444,8 +450,33 @@ useEffect(() => {
         </div>
 
         {/* Chat section NEW */}
-        <div className={`${chatMessages.length > 0 ? 'flex' : 'opacity-0 pointer-events-none'} transition-all duration-300 ease-in-out flex-col
-            p-2 lg:p-4 overflow-y-auto mt-30 lg:mt-20 mb-40 lg:mb-100 h-auto w-full lg:w-[950px] lg:max-w-[70%] xl:max-w-[960px] mx-auto`}>
+       <div
+  ref={messagesEndRef}
+  className={`
+    ${chatMessages.length > 0
+      ? 'flex'
+      : 'opacity-0 pointer-events-none'
+    }
+
+    transition-all duration-300 ease-in-out
+    flex-col
+    p-2 lg:p-4
+
+    overflow-y-auto
+
+    mt-30 lg:mt-20
+    mb-40 lg:mb-100
+
+    h-[calc(100vh-180px)]
+
+    w-full
+    lg:w-[950px]
+    lg:max-w-[70%]
+    xl:max-w-[960px]
+
+    mx-auto
+  `}
+>
 
           {/* All messages */}
           {chatMessages.map((message, index) => (
@@ -463,13 +494,13 @@ useEffect(() => {
               ) : message.role === 'ai-image' ? (
                   <div className="relative group w-fit">
 
-                {/* 🖼️ IMAGE */}
+                {/* IMAGE */}
                 <img
                   src={message.image}
                   className="rounded-lg mt-2 max-w-full"
                 />
 
-                {/* 🔥 BUTTONS */}
+                {/* BUTTONS */}
                 <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
 
                   {/* 📥 DOWNLOAD */}
@@ -480,7 +511,7 @@ useEffect(() => {
                     <Download className="text-white h-12 w-12"/>
                   </button>
 
-                  {/* 📋 COPY */}
+                  {/*  COPY */}
                   <button
                     onClick={() => handleCopy(message.image)}
                     className="bg-black/60 text-white text-xs px-2 py-1 rounded hover:bg-black"
@@ -494,7 +525,7 @@ useEffect(() => {
                 
                 <div className="flex flex-col w-auto space-y-2 py-2">
 
-                  <div ref={messagesEndRef} className="min-h-[40px] sm:whitespace-pre-line text-sm lg:text-base">
+                  <div  className="min-h-[40px] sm:whitespace-pre-line text-sm lg:text-base">
                     <TypingEffect mode={isDarkMode} text={message.content} />
                   </div>
 
@@ -523,7 +554,7 @@ useEffect(() => {
             </div>
           ))}
 
-          {/* ✅ LOADER هون (المكان الصح) */}
+          {/* LOADER */}
           {isLoading && (
             <div className={`self-start w-full max-w-full lg:max-w-[80%] xl:max-w-[90%] p-3 lg:p-4 rounded-lg mb-3 lg:mb-5 ${isDarkMode ? 'bg-[#1f2023]' : 'bg-white'}`}>
               <div className={`${isDarkMode ? "loader-light" : 'loader-dark'}`}></div>
@@ -559,8 +590,8 @@ useEffect(() => {
                 ></textarea>
                   <button
                     onClick={handleSend}
-                    disabled={!input.trim()}
-                    className={`absolute right-3 top-3 p-2 rounded-full transition-all ${isDarkMode ? 'bg-[#27292d] border-1 border-[#1f2023] hover:bg-[#1f2023]  rounded-full' : 'bg-black text-white hover:bg-white hover:text-black hover:border-1 hover:border-black rounded-full'} ${!input.trim() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    disabled={!input.trim() || disableReply}
+                    className={`absolute right-3 top-3 p-2 rounded-full transition-all ${isDarkMode ? 'bg-[#27292d] border-1 border-[#1f2023] hover:bg-[#1f2023]  rounded-full' : 'bg-black text-white hover:bg-white hover:text-black hover:border-1 hover:border-black rounded-full'} ${!input.trim() || disableReply ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                   >
                     <ArrowRight className="w-5 h-5 " />
                   </button>
