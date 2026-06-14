@@ -17,7 +17,6 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// 🔥 ذاكرة المحادثات
 const conversations = {};
 
 const system = `
@@ -43,7 +42,7 @@ export const generateImage = async (prompt) => {
   const response = await client.images.generate({
     model: "gpt-image-1",
     prompt: prompt,
-    size: "1024x1024", // أو 512x512
+    size: "1024x1024",
   });
 
   return response.data[0].url;
@@ -59,7 +58,7 @@ app.post("/api/image", async (req, res) => {
       size: "1024x1024",
     });
 
-    console.log("✅ Image generated:", result?.data);
+    console.log("Image generated:", result?.data);
 
     const base64 = result.data[0].b64_json;
 
@@ -79,10 +78,10 @@ app.post("/api/chat", async (req, res) => {
   const { message, userId = "default-user", model } = req.body;
 
   console.log("\n==============================");
-  console.log("📥 New Request");
-  console.log("👤 User:", userId);
-  console.log("💬 Message:", message);
-  console.log("🤖 Model:", model);
+  console.log("New Request");
+  console.log("User:", userId);
+  console.log("Message:", message);
+  console.log("Model:", model);
 
   try {
     if (!conversations[userId]) {
