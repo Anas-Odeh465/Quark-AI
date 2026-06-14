@@ -26,7 +26,6 @@ const StreamingText = ({ text = "", mode }) => {
         remarkPlugins={[remarkGfm]}
         components={{
 
-          // 🔥 CODE BLOCK (UPDATED)
           code({ inline, className, children }) {
             const [copied, setCopied] = useState(false);
             const codeString = String(children).replace(/\n$/, "");
@@ -43,7 +42,6 @@ const StreamingText = ({ text = "", mode }) => {
               return (
                 <div className="my-4 rounded-lg overflow-hidden">
 
-                  {/* 🔥 HEADER */}
                   <div
                     className={`
                       flex justify-between items-center px-4 py-2 text-xs font-medium
@@ -67,7 +65,6 @@ const StreamingText = ({ text = "", mode }) => {
                     </button>
                   </div>
 
-                  {/* 🔥 CODE BODY */}
                   <div className="relative">
                     <SyntaxHighlighter
                       style={oneDark}
@@ -94,12 +91,10 @@ const StreamingText = ({ text = "", mode }) => {
             );
           },
 
-          // ✨ TEXT
           p: (props) => <p className="mb-3 leading-relaxed" {...props} />,
           h1: (props) => <h1 className="text-2xl font-bold mb-3" {...props} />,
           h2: (props) => <h2 className="text-xl font-semibold mb-2" {...props} />,
 
-          // 🔥 LISTS
           ol: (props) => (
             <ol
               {...props}
@@ -122,7 +117,6 @@ const StreamingText = ({ text = "", mode }) => {
 
           strong: (props) => <strong className="font-bold" {...props} />,
 
-          // 🔥 BLOCKQUOTE
           blockquote: (props) => (
             <blockquote
               className={`
@@ -135,7 +129,6 @@ const StreamingText = ({ text = "", mode }) => {
             />
           ),
 
-          // 🔥 LINKS
           a: (props) => (
             <a
               className="text-blue-500 hover:underline"
@@ -145,12 +138,10 @@ const StreamingText = ({ text = "", mode }) => {
             />
           ),
 
-          // 🔥 IMAGES
           img: (props) => (
             <img className="rounded-lg my-4 max-w-full" {...props} />
           ),
 
-          // 🔥 TABLES
           table: (props) => (
             <div className="overflow-x-auto my-4">
               <table
